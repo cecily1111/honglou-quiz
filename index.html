@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>测测你是金陵十二钗里的谁</title>
+<style>
+  :root{
+    --paper:#f6efdf; --paper2:#efe5cc; --ink:#3b2f2f; --ink2:#6f5f52;
+    --red:#9d2c2c; --gold:#b48b3c; --card:#fffdf6;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{
+    font-family:"Noto Serif SC","Songti SC","STSong","SimSun",serif;
+    background:var(--paper2);
+    background-image:radial-gradient(circle at 20% 10%,rgba(180,139,60,.08),transparent 40%),
+                     radial-gradient(circle at 85% 90%,rgba(157,44,44,.06),transparent 45%);
+    color:var(--ink); display:flex;justify-content:center;min-height:100vh;padding:16px 0;
+  }
+  .phone{width:min(400px,94vw);background:var(--paper);border:1px solid #dccfae;border-radius:14px;
+    box-shadow:0 8px 30px rgba(59,47,47,.15);overflow:hidden;min-height:calc(100vh - 32px);position:relative}
+  .frame{position:absolute;inset:8px;border:1px solid rgba(180,139,60,.35);border-radius:10px;pointer-events:none}
+  .screen{display:none;padding:36px 26px 32px;animation:fade .4s ease}
+  .screen.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @keyframes shake{0%,100%{transform:none}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .shake{animation:shake .3s ease}
+  .seal{width:44px;height:44px;background:var(--red);color:#f6efdf;border-radius:6px;display:flex;
+    align-items:center;justify-content:center;font-size:15px;letter-spacing:1px;line-height:1.1;text-align:center;margin:0 auto 18px}
+  h1{font-size:26px;text-align:center;font-weight:700;letter-spacing:2px;line-height:1.5}
+  h1 span{color:var(--red)}
+  .sub{text-align:center;color:var(--ink2);font-size:13.5px;margin-top:12px;line-height:1.9}
+  .divider{width:60px;height:1px;background:var(--gold);margin:22px auto}
+  .intro-tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:4px 0 6px}
+  .tag{font-size:12px;color:var(--red);border:1px solid rgba(157,44,44,.4);border-radius:20px;padding:4px 12px;background:rgba(157,44,44,.04)}
+  .btn{display:block;width:100%;margin-top:26px;padding:14px;background:var(--red);color:#f8f1e0;border:none;
+    border-radius:8px;font-size:17px;letter-spacing:6px;font-family:inherit;cursor:pointer;box-shadow:0 4px 14px rgba(157,44,44,.3)}
+  .btn:active{transform:translateY(1px)}
+  .btn.ghost{background:transparent;color:var(--ink2);border:1px solid #cbbf9d;box-shadow:none;font-size:14px;letter-spacing:3px;margin-top:14px;padding:11px}
+  .meta-row{display:flex;justify-content:center;gap:18px;margin-top:20px;font-size:12px;color:var(--ink2)}
+  .meta-row b{color:var(--red);font-weight:700}
+  .gate{margin-top:22px}
+  .gate label{display:block;text-align:center;font-size:13px;color:var(--ink2);margin-bottom:10px;letter-spacing:1px}
+  .gate input{display:block;width:160px;margin:0 auto;padding:11px;background:var(--card);border:1px solid #d5c69d;
+    border-radius:8px;text-align:center;font-size:20px;letter-spacing:8px;font-family:inherit;color:var(--ink);outline:none}
+  .gate input:focus{border-color:var(--red)}
+  .gate .err{text-align:center;font-size:12.5px;color:var(--red);margin-top:10px;min-height:18px}
+  /* 题目页 */
+  .progress-wrap{height:4px;background:#e3d7b8;border-radius:2px;margin-bottom:26px;overflow:hidden}
+  .progress{height:100%;background:var(--red);border-radius:2px;transition:width .35s ease}
+  .qno{font-size:12px;color:var(--gold);letter-spacing:3px;margin-bottom:10px}
+  .qtext{font-size:18px;line-height:1.85;font-weight:700;margin-bottom:24px}
+  .opt{display:block;width:100%;text-align:left;background:var(--card);border:1px solid #e0d4b2;border-radius:9px;
+    padding:14px 16px;margin-bottom:12px;font-size:15px;line-height:1.7;color:var(--ink);font-family:inherit;cursor:pointer;
+    transition:border-color .15s,transform .15s}
+  .opt:active{border-color:var(--red);transform:scale(.985);background:#fdf6e7}
+  .opt .mark{color:var(--red);margin-right:8px;font-weight:700}
+  /* 结果页 */
+  .result-tag{text-align:center;font-size:12px;color:var(--gold);letter-spacing:4px;margin-bottom:16px}
+  .rname{font-size:34px;text-align:center;font-weight:700;letter-spacing:6px;color:var(--red)}
+  .rtitle{text-align:center;font-size:14px;color:var(--ink2);margin-top:8px;letter-spacing:2px}
+  .rquote{text-align:center;font-size:14.5px;line-height:2;margin-top:16px;padding:12px 14px;background:rgba(157,44,44,.05);
+    border-left:3px solid var(--red);border-radius:4px;color:#5a4535}
+  .kw{display:flex;justify-content:center;gap:8px;margin:18px 0}
+  .kw span{font-size:12.5px;color:var(--red);border:1px solid rgba(157,44,44,.35);border-radius:20px;padding:4px 13px}
+  .block{margin-bottom:14px;background:var(--card);border:1px solid #e8dcb9;border-radius:9px;padding:13px 15px}
+  .block h4{font-size:12.5px;color:var(--gold);letter-spacing:3px;margin-bottom:7px}
+  .block p{font-size:14px;line-height:1.85;color:#4a3c33}
+  .block.warn h4{color:#8a6a2f}
+  .block .band{font-size:11px;color:#fff;background:var(--gold);border-radius:3px;padding:2px 7px;margin-left:8px;letter-spacing:2px;vertical-align:1px}
+  .block .band.hi{background:var(--red)} .block .band.lo{background:#8a8572}
+  .dimbar{height:5px;background:#e8dcb9;border-radius:3px;margin:8px 0 4px;overflow:hidden}
+  .dimbar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--red));border-radius:3px}
+  .section-tt{text-align:center;font-size:15px;letter-spacing:6px;color:var(--ink);margin:26px 0 4px}
+  .section-tt::before,.section-tt::after{content:'—';color:var(--gold);margin:0 10px}
+  .legend{display:flex;justify-content:center;gap:16px;font-size:11.5px;color:var(--ink2);margin-top:4px}
+  .legend i{display:inline-block;width:16px;height:0;border-top:2px solid var(--red);vertical-align:3px;margin-right:4px}
+  .legend i.gold{border-top:2px dashed var(--gold)}
+  .radar-wrap{display:flex;justify-content:center;margin:10px 0 6px}
+  .disclaimer{font-size:11px;color:#9c8e7a;text-align:center;line-height:1.8;margin-top:20px}
+
+  /* 导出长图浮层 */
+  .export-mask{position:fixed;inset:0;background:rgba(30,22,16,.86);z-index:99;display:flex;flex-direction:column;align-items:center;padding:24px 16px;overflow-y:auto}
+  .export-mask img{width:100%;max-width:420px;border-radius:10px;box-shadow:0 8px 40px rgba(0,0,0,.5)}
+  .export-hint{color:#e8dcc0;font-size:14px;margin:14px 0 10px;text-align:center;line-height:1.7}
+  .export-hint b{color:#f0c868}
+  .export-btns{display:flex;gap:10px;margin-bottom:12px}
+  .export-btns button{border:1px solid #b48b3c;background:#9d2c2c;color:#f6efdf;padding:9px 18px;border-radius:22px;font-size:14px;cursor:pointer}
+  .export-btns button.ghost{background:transparent;color:#e8dcc0;border-color:#8b7c68}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="frame"></div>
+
+  <!-- 开场（带校验码） -->
+  <div class="screen active" id="s-intro">
+    <div class="seal">红楼<br>十问</div>
+    <h1>测测你是<br><span>金陵十二钗</span>里的谁</h1>
+    <p class="sub">园门已闭，需持请柬入内。<br>十道小事，见你的为人底色。</p>
+    <div class="divider"></div>
+    <div class="intro-tags"><span class="tag">共 10 题</span><span class="tag">12 种结局</span><span class="tag">五维深度画像</span></div>
+    <div class="gate">
+      <label>· 请 输 入 园 门 校 验 码 ·</label>
+      <input id="code" inputmode="numeric" maxlength="4" placeholder="· · · ·" autocomplete="off">
+      <div class="err" id="code-err"></div>
+    </div>
+    <button class="btn" onclick="verify()">入 园</button>
+    <div class="meta-row"><span>题目 <b>10</b></span><span>判词 <b>12</b></span><span>依据 <b>大五自尊</b></span></div>
+    <p class="disclaimer">本测试为娱乐向人格趣味测试，不构成任何心理或医学诊断。</p>
+  </div>
+
+  <!-- 答题 -->
+  <div class="screen" id="s-quiz">
+    <div class="progress-wrap"><div class="progress" id="bar"></div></div>
+    <div class="qno" id="qno"></div>
+    <div class="qtext" id="qtext"></div>
+    <div id="opts"></div>
+  </div>
+
+  <!-- 结果 -->
+  <div class="screen" id="s-result">
+    <div class="result-tag" id="r-lead"></div>
+    <div class="rname" id="r-name"></div>
+    <div class="rtitle" id="r-title"></div>
+    <div class="rquote" id="r-quote"></div>
+    <div class="kw" id="r-kw"></div>
+
+    <div class="section-tt">五 维 人 格 画 像</div>
+    <div class="legend"><span><i></i>你的画像</span><span><i class="gold"></i>你最像的角色</span></div>
+    <div class="radar-wrap"><svg id="radar" width="300" height="290" viewBox="0 0 300 290"></svg></div>
+    <div id="dims"></div>
+
+    <div class="section-tt">深 度 解 读</div>
+    <div class="block"><h4>你的高光</h4><p id="r-hl"></p></div>
+    <div class="block warn"><h4>你的软肋</h4><p id="r-wk"></p></div>
+    <div class="block"><h4>给你的话</h4><p id="r-ad"></p></div>
+    <div class="block"><h4>园里最懂你的人</h4><p id="r-mate"></p></div>
+    <button class="btn" onclick="exportResult()">📥 导出结果长图 · 存相册 / 转发</button>
+    <button class="btn ghost" onclick="reset()">再测一次 · 换个命运</button>
+    <p class="disclaimer">题目框架源自公有领域 Rosenberg 自尊量表，表达与文案为原创 · 娱乐向，非诊断</p>
+  </div>
+</div>
+
+<script>
+const DATA = {
+  "meta": {
+    "title": "测测你是金陵十二钗里的谁",
+    "subtitle": "10 道题，测出你在红楼世界的人格底色",
+    "access_code": "1688",
+    "source_note": "题目主题框架源自公有领域 Rosenberg 自尊量表（IPIP 收录，ipip.ori.org），题目表达、世界观与结果文案均为原创，可自由商用。",
+    "disclaimer": "本测试为娱乐向人格趣味测试，不构成任何心理或医学诊断。",
+    "tie_break_order": [
+      "林黛玉",
+      "薛宝钗",
+      "贾元春",
+      "贾探春",
+      "史湘云",
+      "妙玉",
+      "贾迎春",
+      "贾惜春",
+      "王熙凤",
+      "贾巧姐",
+      "李纨",
+      "秦可卿"
+    ],
+    "question_count": 10,
+    "character_count": 12,
+    "dims": [
+      {
+        "key": "worth",
+        "label": "自我价值",
+        "desc": "你对自身价值的稳定程度"
+      },
+      {
+        "key": "express",
+        "label": "情感外露",
+        "desc": "你表露情绪与感受的开放度"
+      },
+      {
+        "key": "agency",
+        "label": "行动掌控",
+        "desc": "你主动出手的能量与掌控欲"
+      },
+      {
+        "key": "warmth",
+        "label": "社交亲和",
+        "desc": "你在人群中获取与给予能量的程度"
+      },
+      {
+        "key": "refine",
+        "label": "完美自省",
+        "desc": "你自我要求与复盘内省的强度"
+      }
+    ]
+  },
+  "characters": [
+    {
+      "id": "daiyu",
+      "name": "林黛玉",
+      "title": "世外仙姝寂寞林",
+      "vector": [
+        2,
+        5,
+        2,
+        2,
+        5
+      ],
+      "keywords": [
+        "灵气",
+        "敏感",
+        "深情"
+      ],
+      "highlight": "你才华横溢、感受力极强，别人一眼扫过的细节，你能看出三层意思。真心的东西你从不敷衍。",
+      "weakness": "你把太多别人的反应当镜子，一句无心之言能让你失眠整晚。",
+      "advice": "你的敏感不是缺点，是天赋。少猜、多问，情绪会顺一半。",
+      "soulmate": "史湘云——她的大大咧咧，恰好是你缺的那口气。"
+    },
+    {
+      "id": "baochai",
+      "name": "薛宝钗",
+      "title": "山中高士晶莹雪",
+      "vector": [
+        4,
+        2,
+        4,
+        4,
+        4
+      ],
+      "keywords": [
+        "稳",
+        "周全",
+        "进退有度"
+      ],
+      "highlight": "你情绪稳定、人情练达，任何场合都知道自己该站在哪、说什么。",
+      "weakness": "你太习惯替所有人着想，唯独把自己的委屈排最后。",
+      "advice": "偶尔任性一次，不会天塌。真实比周全更让人记住你。",
+      "soulmate": "贾探春——你们是彼此欣赏的那种体面人。"
+    },
+    {
+      "id": "yuanchun",
+      "name": "贾元春",
+      "title": "三春争及初春景",
+      "vector": [
+        4,
+        2,
+        4,
+        3,
+        3
+      ],
+      "keywords": [
+        "端庄",
+        "隐忍",
+        "大局观"
+      ],
+      "highlight": "你扛得住场面、压得住情绪，是那种被托付大事也不会掉链子的人。",
+      "weakness": "你太会懂事，久到没人问过你是不是真的开心。",
+      "advice": "对亲近的人，可以不用那么得体。",
+      "soulmate": "薛宝钗——你们都懂什么叫分寸。"
+    },
+    {
+      "id": "tanchun",
+      "name": "贾探春",
+      "title": "日边红杏倚云栽",
+      "vector": [
+        5,
+        3,
+        5,
+        3,
+        3
+      ],
+      "keywords": [
+        "飒",
+        "自尊",
+        "行动力"
+      ],
+      "highlight": "你自尊心强、敢拍板、能扛事，出身的标签从来困不住你的野心。",
+      "weakness": "你对自己下手太狠，连脆弱都要挑没人的时候。",
+      "advice": "强势用来做事，别用来挡住关心你的人。",
+      "soulmate": "王熙凤——你们凑一起，能把家翻了再重盖。"
+    },
+    {
+      "id": "xiangyun",
+      "name": "史湘云",
+      "title": "英豪阔大宽宏量",
+      "vector": [
+        4,
+        5,
+        3,
+        5,
+        1
+      ],
+      "keywords": [
+        "豁达",
+        "乐天",
+        "人来疯"
+      ],
+      "highlight": "你心大、有趣、自带笑点，有你在的地方就没有冷场。",
+      "weakness": "你习惯把难过藏进玩笑里，等独处时才翻出来。",
+      "advice": "难过的时候别装没事，找人说说，你值得被接住。",
+      "soulmate": "林黛玉——她懂你的诗，你懂她的泪。"
+    },
+    {
+      "id": "miaoyu",
+      "name": "妙玉",
+      "title": "欲洁何曾洁",
+      "vector": [
+        3,
+        2,
+        2,
+        1,
+        5
+      ],
+      "keywords": [
+        "清高",
+        "极致",
+        "边界感"
+      ],
+      "highlight": "你对品质有近乎苛刻的追求，审美和标准都远超常人。",
+      "weakness": "你把'不合群'活成了习惯，其实是怕靠近后的失望。",
+      "advice": "标准留给作品，别留给关系。允许别人'俗'一点。",
+      "soulmate": "贾惜春——你们都不爱说话，但看得透。"
+    },
+    {
+      "id": "yingchun",
+      "name": "贾迎春",
+      "title": "金闺花柳质",
+      "vector": [
+        1,
+        1,
+        1,
+        3,
+        2
+      ],
+      "keywords": [
+        "温柔",
+        "隐忍",
+        "好脾气"
+      ],
+      "highlight": "你不争不抢、与人为善，是所有人眼里的'省心'。",
+      "weakness": "你习惯退让，退到最后连自己的声音都听不见。",
+      "advice": "温柔要有底线。第一次拒绝很难，之后就轻了。",
+      "soulmate": "李纨——她安静，但从不委屈自己。"
+    },
+    {
+      "id": "xichun",
+      "name": "贾惜春",
+      "title": "独卧青灯古佛旁",
+      "vector": [
+        3,
+        1,
+        2,
+        1,
+        4
+      ],
+      "keywords": [
+        "清醒",
+        "决绝",
+        "独处"
+      ],
+      "highlight": "你看得比同龄人都透，不拖泥带水，断舍离起来无人能及。",
+      "weakness": "你的冷一半是性格，一半是自我保护。切得太干净，也就一个人了。",
+      "advice": "不是所有人都会辜负你，留一扇门给自己。",
+      "soulmate": "妙玉——你们是彼此唯一的同类。"
+    },
+    {
+      "id": "fengjie",
+      "name": "王熙凤",
+      "title": "凡鸟偏从末世来",
+      "vector": [
+        5,
+        4,
+        5,
+        4,
+        1
+      ],
+      "keywords": [
+        "飒辣",
+        "掌控",
+        "全场最高能"
+      ],
+      "highlight": "你能量爆棚、执行力惊人，天大的事到你手里都有办法。",
+      "weakness": "你什么都自己扛，扛出内伤也只说'小事'。",
+      "advice": "会用人也是本事，别把'靠自己'变成孤军奋战。",
+      "soulmate": "贾探春——你们配合起来没有理不顺的事。"
+    },
+    {
+      "id": "qiaojie",
+      "name": "贾巧姐",
+      "title": "巧得遇恩人",
+      "vector": [
+        3,
+        2,
+        2,
+        4,
+        2
+      ],
+      "keywords": [
+        "质朴",
+        "韧性",
+        "知足"
+      ],
+      "highlight": "你皮实、知足、抗打击，日子给你什么你都能过出滋味。",
+      "weakness": "你太容易满足于'还行'，偶尔也该为自己争一次。",
+      "advice": "你的韧性是稀有品，配得上更好的目标。",
+      "soulmate": "史湘云——她教你把日子过成段子。"
+    },
+    {
+      "id": "liwan",
+      "name": "李纨",
+      "title": "竹篱茅舍自甘心",
+      "vector": [
+        3,
+        2,
+        3,
+        3,
+        3
+      ],
+      "keywords": [
+        "沉稳",
+        "守成",
+        "静水深流"
+      ],
+      "highlight": "你目标明确、情绪克制，不被热闹裹挟，把自己的日子过得扎实。",
+      "weakness": "你把欲望锁得太死，久了自己都忘了想要什么。",
+      "advice": "守得住是本事，但别忘了偶尔也为自己活一集。",
+      "soulmate": "贾迎春——你能教她拒绝，她能给你温柔。"
+    },
+    {
+      "id": "keqing",
+      "name": "秦可卿",
+      "title": "情天情海幻情身",
+      "vector": [
+        3,
+        4,
+        3,
+        5,
+        4
+      ],
+      "keywords": [
+        "妥帖",
+        "共情",
+        "人缘"
+      ],
+      "highlight": "你共情力极强、待人周到，长辈晚辈没有不喜欢你的。",
+      "weakness": "你把'让人满意'当成自己的任务，累到说不出话也在笑。",
+      "advice": "你不需要让所有人满意。先让自己满意。",
+      "soulmate": "薛宝钗——你们都懂人情，可以互相松绑。"
+    }
+  ],
+  "questions": [
+    {
+      "index": 1,
+      "theme": "整体自我满意",
+      "text": "你初入大观园，安顿下来的第一夜，心里想的是——",
+      "options": [
+        {
+          "text": "既来之则安之，明日按规矩拜见各位就好",
+          "credits": {
+            "薛宝钗": 2,
+            "贾元春": 2,
+            "李纨": 1
+          },
+          "dims": {
+            "worth": 1,
+            "refine": 1
+          }
+        },
+        {
+          "text": "睡不着，光想着明天能认识多少有意思的人",
+          "credits": {
+            "史湘云": 2,
+            "秦可卿": 2
+          },
+          "dims": {
+            "express": 1,
+            "warmth": 2,
+            "refine": -1
+          }
+        },
+        {
+          "text": "翻来覆去，怕自己哪句话说得不妥被人笑话",
+          "credits": {
+            "林黛玉": 2,
+            "妙玉": 2
+          },
+          "dims": {
+            "worth": -1,
+            "refine": 2
+          }
+        },
+        {
+          "text": "没什么想头，做好自己的事比什么都强",
+          "credits": {
+            "贾探春": 1,
+            "贾惜春": 2
+          },
+          "dims": {
+            "agency": 1,
+            "warmth": -1
+          }
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "theme": "优点自觉",
+      "text": "海棠诗社开社，各人都要亮一样看家本事，你觉得最拿得出手的是——",
+      "options": [
+        {
+          "text": "文采，提笔就有，别人写半日我一杯茶功夫成稿",
+          "credits": {
+            "林黛玉": 1,
+            "史湘云": 1
+          },
+          "dims": {
+            "express": 1,
+            "refine": 1
+          }
+        },
+        {
+          "text": "理事，账目人情人脉安排，我脑子里清清楚楚",
+          "credits": {
+            "王熙凤": 2,
+            "贾探春": 1
+          },
+          "dims": {
+            "worth": 1,
+            "agency": 2
+          }
+        },
+        {
+          "text": "手艺，一针一线做出来的东西才见真功夫",
+          "credits": {
+            "贾巧姐": 1,
+            "贾迎春": 2
+          },
+          "dims": {
+            "warmth": 1,
+            "refine": 1
+          }
+        },
+        {
+          "text": "心静，不与人争比，自成一方天地",
+          "credits": {
+            "妙玉": 1,
+            "贾惜春": 2
+          },
+          "dims": {
+            "express": -1,
+            "refine": 2
+          }
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "theme": "面对批评",
+      "text": "抄检大观园查到你房里，有人当众质疑你，你会——",
+      "options": [
+        {
+          "text": "冷冷顶回去：我这里不许搜，一个字也不多说",
+          "credits": {
+            "贾探春": 2,
+            "林黛玉": 1
+          },
+          "dims": {
+            "worth": 2,
+            "agency": 1
+          }
+        },
+        {
+          "text": "不慌不忙据理力争，说到对方哑口无言",
+          "credits": {
+            "薛宝钗": 1,
+            "王熙凤": 2
+          },
+          "dims": {
+            "worth": 1,
+            "agency": 1,
+            "refine": 1
+          }
+        },
+        {
+          "text": "一声不吭受了，转身回房偷偷难过",
+          "credits": {
+            "贾迎春": 2,
+            "林黛玉": 1
+          },
+          "dims": {
+            "worth": -2,
+            "express": 1
+          }
+        },
+        {
+          "text": "懒得辩解，直接走人——道不同不相为谋",
+          "credits": {
+            "贾惜春": 1,
+            "妙玉": 2
+          },
+          "dims": {
+            "express": -2,
+            "refine": 1
+          }
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "theme": "自我接纳",
+      "text": "若神明许你重活一次，你选——",
+      "options": [
+        {
+          "text": "不必重来，就这样按本心再走一遍",
+          "credits": {
+            "林黛玉": 1,
+            "史湘云": 2
+          },
+          "dims": {
+            "worth": 2
+          }
+        },
+        {
+          "text": "平平淡淡就好，安稳是最大的福气",
+          "credits": {
+            "李纨": 2,
+            "贾巧姐": 2
+          },
+          "dims": {
+            "warmth": 1,
+            "refine": 1
+          }
+        },
+        {
+          "text": "当然重来，这次要活得更有声有色",
+          "credits": {
+            "王熙凤": 2,
+            "贾探春": 1
+          },
+          "dims": {
+            "express": 1,
+            "agency": 2
+          }
+        },
+        {
+          "text": "想走出这座园子，去看看外面的天地",
+          "credits": {
+            "妙玉": 1,
+            "贾惜春": 1
+          },
+          "dims": {
+            "express": -1,
+            "refine": 1
+          }
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "theme": "自豪感",
+      "text": "你随手做的物件被众人争着夸，你的第一反应是——",
+      "options": [
+        {
+          "text": "淡淡一句'不过是随手写的'，心里却记下了这份认可",
+          "credits": {
+            "林黛玉": 1,
+            "妙玉": 1
+          },
+          "dims": {
+            "express": -1,
+            "refine": 1
+          }
+        },
+        {
+          "text": "落落大方道谢，顺手再回夸对方一句",
+          "credits": {
+            "薛宝钗": 2,
+            "秦可卿": 2
+          },
+          "dims": {
+            "worth": 1,
+            "express": 1,
+            "warmth": 1
+          }
+        },
+        {
+          "text": "趁热打铁，把压箱底的整套方案也端出来",
+          "credits": {
+            "王熙凤": 1,
+            "贾探春": 2
+          },
+          "dims": {
+            "worth": 1,
+            "express": 1,
+            "agency": 1
+          }
+        },
+        {
+          "text": "脸一下就红了，被夸比被骂还不好意思",
+          "credits": {
+            "史湘云": 1,
+            "贾巧姐": 2
+          },
+          "dims": {
+            "express": 1,
+            "warmth": 1,
+            "refine": -1
+          }
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "theme": "委屈与自我价值",
+      "text": "屋里丢了件东西，有人一口咬定是你拿的，你会——",
+      "options": [
+        {
+          "text": "眼泪先掉下来，有理也说不出的苦",
+          "credits": {
+            "林黛玉": 1,
+            "贾迎春": 2
+          },
+          "dims": {
+            "worth": -2,
+            "express": 1
+          }
+        },
+        {
+          "text": "当场对质查清楚，这个锅绝不背",
+          "credits": {
+            "贾探春": 2,
+            "王熙凤": 1
+          },
+          "dims": {
+            "worth": 1,
+            "agency": 2
+          }
+        },
+        {
+          "text": "清者自清，随他们说去，何必自降身份",
+          "credits": {
+            "史湘云": 2,
+            "李纨": 1
+          },
+          "dims": {
+            "worth": 1
+          }
+        },
+        {
+          "text": "冷笑一声记在心里，此后再无此人",
+          "credits": {
+            "妙玉": 2,
+            "贾惜春": 1
+          },
+          "dims": {
+            "worth": 1,
+            "express": -2,
+            "refine": 1
+          }
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "theme": "社交姿态",
+      "text": "夜宴上众人起哄让你露一手，你会——",
+      "options": [
+        {
+          "text": "来就来！能玩就玩，扫什么兴",
+          "credits": {
+            "史湘云": 2,
+            "秦可卿": 2
+          },
+          "dims": {
+            "express": 2,
+            "warmth": 2,
+            "refine": -1
+          }
+        },
+        {
+          "text": "笑着推辞，把机会让给更想表现的人",
+          "credits": {
+            "薛宝钗": 2,
+            "李纨": 2
+          },
+          "dims": {
+            "warmth": 1,
+            "express": -1,
+            "refine": 1
+          }
+        },
+        {
+          "text": "心里其实想试，又怕当众出错",
+          "credits": {
+            "贾迎春": 2,
+            "林黛玉": 1
+          },
+          "dims": {
+            "worth": -1,
+            "refine": 1
+          }
+        },
+        {
+          "text": "早些离席，热闹是他们的",
+          "credits": {
+            "妙玉": 1,
+            "贾惜春": 2
+          },
+          "dims": {
+            "express": -1,
+            "warmth": -2
+          }
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "theme": "对未来",
+      "text": "听说园子外头起了风浪、家业恐难长久，你心里盘算的是——",
+      "options": [
+        {
+          "text": "先理清手里能攥住的账，能省的省，能备的备",
+          "credits": {
+            "贾探春": 1,
+            "李纨": 2,
+            "贾元春": 1
+          },
+          "dims": {
+            "agency": 2,
+            "refine": 1
+          }
+        },
+        {
+          "text": "天塌下来当被盖，眼下先惜取眼前人",
+          "credits": {
+            "史湘云": 1,
+            "秦可卿": 2
+          },
+          "dims": {
+            "worth": 1,
+            "warmth": 1
+          }
+        },
+        {
+          "text": "悲从中来，写一首诗寄出去才睡得着",
+          "credits": {
+            "林黛玉": 1,
+            "妙玉": 1
+          },
+          "dims": {
+            "worth": -1,
+            "express": 1,
+            "refine": 1
+          }
+        },
+        {
+          "text": "各人有各人的路，慌也无用，不如养好自己",
+          "credits": {
+            "贾巧姐": 2,
+            "贾惜春": 1
+          },
+          "dims": {
+            "worth": 1,
+            "agency": 1
+          }
+        }
+      ]
+    },
+    {
+      "index": 9,
+      "theme": "被点名的场合",
+      "text": "家宴上长辈忽然点名要你答话献艺，全场看你，你会——",
+      "options": [
+        {
+          "text": "沉着应对，不卑不亢，句句得体",
+          "credits": {
+            "贾元春": 3,
+            "薛宝钗": 2
+          },
+          "dims": {
+            "worth": 1,
+            "agency": 1
+          }
+        },
+        {
+          "text": "灵机一动开个玩笑，先让大家笑起来",
+          "credits": {
+            "史湘云": 1,
+            "王熙凤": 2
+          },
+          "dims": {
+            "express": 2,
+            "warmth": 1
+          }
+        },
+        {
+          "text": "心跳如擂鼓，勉强应付完只想找地方躲",
+          "credits": {
+            "贾迎春": 2,
+            "林黛玉": 1
+          },
+          "dims": {
+            "worth": -2,
+            "refine": 1
+          }
+        },
+        {
+          "text": "坦白说不会，倒也坦然",
+          "credits": {
+            "李纨": 2,
+            "贾巧姐": 2
+          },
+          "dims": {
+            "worth": 1,
+            "express": -1
+          }
+        }
+      ]
+    },
+    {
+      "index": 10,
+      "theme": "理想居所",
+      "text": "若让你在大观园里挑一处常住，你选——",
+      "options": [
+        {
+          "text": "潇湘馆，竹影清幽，一个人待着最舒服",
+          "credits": {
+            "林黛玉": 1,
+            "妙玉": 1
+          },
+          "dims": {
+            "warmth": -1,
+            "refine": 1
+          }
+        },
+        {
+          "text": "蘅芜苑，素净端方，一点多余都没有",
+          "credits": {
+            "薛宝钗": 1,
+            "李纨": 1
+          },
+          "dims": {
+            "agency": 1,
+            "refine": 1
+          }
+        },
+        {
+          "text": "秋爽斋，阔朗大气，案上摆着名家字帖",
+          "credits": {
+            "贾探春": 1,
+            "贾元春": 3
+          },
+          "dims": {
+            "worth": 1,
+            "agency": 1
+          }
+        },
+        {
+          "text": "稻香村，柴门烟火气，热热乎乎过日子",
+          "credits": {
+            "贾巧姐": 1,
+            "秦可卿": 2
+          },
+          "dims": {
+            "worth": 1,
+            "warmth": 2
+          }
+        }
+      ]
+    }
+  ]
+};
+const ORDER = DATA.characters;
+const NAME_FIX = {'凤姐':'王熙凤'};
+let idx=0, scores={}, dimSum={};
+
+/* ---------- 校验码 ---------- */
+function verify(){
+  const v=document.getElementById('code').value.trim();
+  const err=document.getElementById('code-err');
+  if(v===DATA.meta.access_code){ err.textContent=''; start(); }
+  else{ err.textContent='校验码不对，这园门不是谁都能进的'; document.getElementById('code').classList.add('shake'); setTimeout(()=>document.getElementById('code').classList.remove('shake'),350); }
+}
+document.addEventListener('keydown',e=>{ if(e.key==='Enter' && document.getElementById('s-intro').classList.contains('active')) verify(); });
+
+/* ---------- 流程 ---------- */
+function start(){ idx=0; scores={}; dimSum={}; show('s-quiz'); render(); }
+function reset(){ show('s-intro'); document.getElementById('code').value=''; }
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
+
+function render(){
+  const q=DATA.questions[idx];
+  document.getElementById('bar').style.width=(idx/DATA.questions.length*100)+'%';
+  document.getElementById('qno').textContent='第 '+ (idx+1) +' 问 · ' + q.theme;
+  document.getElementById('qtext').textContent=q.text;
+  const box=document.getElementById('opts'); box.innerHTML='';
+  const marks=['甲','乙','丙','丁'];
+  q.options.forEach((o,i)=>{
+    const b=document.createElement('button'); b.className='opt';
+    b.innerHTML='<span class="mark">'+marks[i]+'</span>'+o.text;
+    b.onclick=()=>pick(o); box.appendChild(b);
+  });
+}
+function pick(opt){
+  for(const [name,pts] of Object.entries(opt.credits)) scores[name]=(scores[name]||0)+pts;
+  for(const [k,v] of Object.entries(opt.dims||{})) dimSum[k]=(dimSum[k]||0)+v;
+  idx++;
+  if(idx>=DATA.questions.length) return finish();
+  render();
+}
+
+/* ---------- 五维计算 ---------- */
+function dimScore(k){ return Math.max(1, Math.min(5, 2.5 + (dimSum[k]||0)*0.55)); }
+function band(s){ return s>=3.8?'hi':(s<=1.9?'lo':'mid'); }
+
+const BAND_TEXT = {
+  worth:{ hi:'你的自我价值感是内在发电的：夸奖是锦上添花，否定动摇不了根。园里像你这样的，是探春、宝钗这一路。', mid:'你的自我评价大体平稳，但遇到重大场合或在意的人，秤会晃。多数时候你其实比自己以为的更稳。', lo:'你习惯向外界借尺子量自己，一句批评能在心里盘桓三天。这不是脆弱，是还没把尺子收回到自己手里。' },
+  express:{ hi:'喜怒哀乐都在明面上，情绪来得快去得也快，别人和你相处不用费劲去猜。', mid:'你有选择地表达：熟人面前热络，生人面前收着，分寸拿捏得很熟。', lo:'你把情绪都收进内袋，外人只见平静水面。代价是，连亲近你的人也要靠猜。' },
+  agency:{ hi:'你是天生的操盘手：乱局里先找线头，能动手的事绝不动嘴焦虑。', mid:'你做事有自己的章法，但倾向于等一个明确的机会再出手，不出无准备之招。', lo:'你偏爱顺其自然，把"管不了"提前放下。不是没能力，是不爱较劲。' },
+  warmth:{ hi:'你是人群里的暖气片，和谁都能处，热闹因为有你才成其为热闹。', mid:'你社交有门槛但不高：三分钟热身，之后热络自然。', lo:'你把社交当耗电项，独处才是充电桩。朋友不在多，在懂。' },
+  refine:{ hi:'你对自己有一套高标尺：细节、体面、自我复盘一样不落。厉害是真的，累也是真的。', mid:'你会在意做得好不好，但不至于失眠——是健康的自我要求。', lo:'你不太内耗，摔了拍拍土就走。这份钝感力是稀缺品，别小看它。' }
+};
+
+/* ---------- 雷达图 ---------- */
+function radar(scores, charVec, labels){
+  const cx=150, cy=150, R=105;
+  const angle=i=>-Math.PI/2 + i*2*Math.PI/5;
+  const pt=(i,v)=>[cx+Math.cos(angle(i))*R*(v/5), cy+Math.sin(angle(i))*R*(v/5)];
+  let g='';
+  // 网格
+  for(let ring=1;ring<=5;ring++){
+    const pts=[0,1,2,3,4].map(i=>pt(i,ring).map(n=>n.toFixed(1)).join(',')).join(' ');
+    g+='<polygon points="'+pts+'" fill="none" stroke="#ddd0ab" stroke-width="'+(ring===5?1.2:0.7)+'"/>';
+  }
+  for(let i=0;i<5;i++) g+='<line x1="'+cx+'" y1="'+cy+'" x2="'+pt(i,5)[0].toFixed(1)+'" y2="'+pt(i,5)[1].toFixed(1)+'" stroke="#ddd0ab" stroke-width="0.7"/>';
+  // 角色虚线
+  const cp=[0,1,2,3,4].map(i=>pt(i,charVec[i]).map(n=>n.toFixed(1)).join(',')).join(' ');
+  g+='<polygon points="'+cp+'" fill="rgba(180,139,60,.07)" stroke="#b48b3c" stroke-width="1.5" stroke-dasharray="5 4"/>';
+  // 用户多边形
+  const up=[0,1,2,3,4].map(i=>pt(i,scores[i]).map(n=>n.toFixed(1)).join(',')).join(' ');
+  g+='<polygon points="'+up+'" fill="rgba(157,44,44,.18)" stroke="#9d2c2c" stroke-width="2"/>';
+  for(let i=0;i<5;i++){ const p=pt(i,scores[i]); g+='<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="3.2" fill="#9d2c2c"/>'; }
+  // 轴标签
+  const LY=[10,22,292,278,150];
+  for(let i=0;i<5;i++){ const p=pt(i,6.15); g+='<text x="'+p[0].toFixed(1)+'" y="'+(p[1].toFixed(1)+(LY[i]?0:4))+'" text-anchor="middle" font-size="12.5" fill="#3b2f2f" font-weight="700">'+labels[i]+'</text>'; }
+  document.getElementById('radar').innerHTML=g;
+}
+
+/* ---------- 结果 ---------- */
+function finish(){
+  document.getElementById('bar').style.width='100%';
+  const top=Math.max(...DATA.characters.map(c=>scores[c.name]||0));
+  const leaders=DATA.characters.filter(c=>(scores[c.name]||0)===top);
+  let best={c:leaders[0],s:top};
+  if(leaders.length>1){
+    const vec=DATA.meta.dims.map(d=>dimScore(d.key));
+    let bestD=Infinity;
+    for(const c of leaders){
+      const d=Math.hypot(...DATA.meta.dims.map((_,i)=>vec[i]-c.vector[i]));
+      if(d<bestD){bestD=d;best={c,s:top};}
+    }
+  }
+  const c=best.c;
+  const dkeys=DATA.meta.dims.map(d=>d.key);
+  const myScores=dkeys.map(dimScore);
+  const b=[]; for(const k of dkeys) b.push(band(dimScore(k)));
+
+  document.getElementById('r-lead').textContent='园门开启 · 你的判词落定（契合 '+best.s+' 分）';
+  document.getElementById('r-name').textContent=c.name;
+  document.getElementById('r-title').textContent='『'+c.title+'』';
+  document.getElementById('r-quote').textContent='你是 '+c.keywords.join(' · ')+' 的那一种人。'+c.highlight;
+  document.getElementById('r-kw').innerHTML=c.keywords.map(k=>'<span>'+k+'</span>').join('');
+
+  radar(myScores, c.vector, DATA.meta.dims.map(d=>d.label));
+
+  const box=document.getElementById('dims'); box.innerHTML='';
+  DATA.meta.dims.forEach((d,i)=>{
+    const bn=b[i], pct=Math.round(myScores[i]/5*100);
+    const bandTxt=BAND_TEXT[d.key][bn], bandCls=bn==='hi'?'hi':(bn==='lo'?'lo':'');
+    const bandName=bn==='hi'?'偏强':(bn==='lo'?'偏弱':'适中');
+    box.innerHTML+='<div class="block"><h4>'+d.label+'<span class="band '+bandCls+'">'+bandName+'</span></h4>'+
+      '<div class="dimbar"><i style="width:'+pct+'%"></i></div>'+
+      '<p style="font-size:12px;color:#8b7c68;margin-top:2px">'+d.desc+'</p>'+
+      '<p>'+bandTxt+'</p></div>';
+  });
+
+  document.getElementById('r-hl').textContent=c.highlight;
+  document.getElementById('r-wk').textContent=c.weakness;
+  document.getElementById('r-ad').textContent=c.advice;
+  document.getElementById('r-mate').textContent=c.soulmate;
+  RESULT={c:c,my:myScores};
+  show('s-result');
+}
+
+let RESULT=null;
+function wrapTextL(ctx,text,maxW){
+  const lines=[];let line='';
+  for(const ch of text){
+    const t=line+ch;
+    if(ctx.measureText(t).width>maxW){lines.push(line);line=ch;}
+    else line=t;
+  }
+  if(line)lines.push(line);
+  return lines;
+}
+function setF(ctx,px,bold){
+  ctx.font=(bold?'bold ':'')+px+'px "Noto Serif SC","Songti SC","SimSun",serif';
+}
+function rr(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
+}
+function radarCard(ctx,cx,cy,R,labels,mine,other){
+  const n=labels.length;
+  const ang=i=>-Math.PI/2+i*2*Math.PI/n;
+  ctx.lineWidth=1;
+  ctx.strokeStyle='rgba(111,95,82,.28)';
+  for(let l=1;l<=4;l++){
+    ctx.beginPath();
+    for(let i=0;i<=n;i++){
+      const a=ang(i%n),r=R*l/4;
+      const x=cx+r*Math.cos(a),y=cy+r*Math.sin(a);
+      i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+    }
+    ctx.stroke();
+  }
+  ctx.beginPath();
+  for(let i=0;i<n;i++){
+    const a=ang(i);
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+R*Math.cos(a),cy+R*Math.sin(a));
+  }
+  ctx.stroke();
+  ctx.fillStyle='#6f5f52';
+  setF(ctx,15);
+  ctx.textAlign='center';
+  for(let i=0;i<n;i++){
+    const a=ang(i);
+    ctx.fillText(labels[i],cx+(R+34)*Math.cos(a),cy+(R+34)*Math.sin(a)+5);
+  }
+  const poly=(vals,close)=>{
+    ctx.beginPath();
+    for(let i=0;i<=n;i++){
+      const a=ang(i%n),r=vals[i%n]/5*R;
+      const x=cx+r*Math.cos(a),y=cy+r*Math.sin(a);
+      i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+    }
+    close?ctx.closePath():0;
+  };
+  poly(other,1);
+  ctx.setLineDash([6,5]);
+  ctx.strokeStyle='rgba(180,139,60,.95)';
+  ctx.lineWidth=2;
+  ctx.stroke();
+  ctx.setLineDash([]);
+  poly(mine,1);
+  ctx.fillStyle='rgba(157,44,44,.16)';
+  ctx.fill();
+  ctx.strokeStyle='#9d2c2c';
+  ctx.lineWidth=2.5;
+  ctx.stroke();
+  ctx.fillStyle='#9d2c2c';
+  for(let i=0;i<n;i++){
+    const a=ang(i),r=mine[i]/5*R;
+    ctx.beginPath();
+    ctx.arc(cx+r*Math.cos(a),cy+r*Math.sin(a),3.5,0,7);
+    ctx.fill();
+  }
+}
+function exportResult(){
+  if(!RESULT)return;
+  const c=RESULT.c,my=RESULT.my;
+  const dims=DATA.meta.dims;
+  const SERIF='"Noto Serif SC","Songti SC","SimSun",serif';
+  const W=750,PAD=52,BW=W-PAD*2;
+  const meas=document.createElement('canvas').getContext('2d');
+
+  // ---- 预排版：测量字号与绘制字号严格一致 ----
+  setF(meas,24);
+  const quoteL=wrapTextL(meas,'你是 '+c.keywords.join(' · ')+' 的那一种人。'+c.highlight,BW);
+  setF(meas,20);
+  const dimBlocks=dims.map((d,i)=>{
+    const bn=(my[i]>=3.8?'hi':(my[i]<=2.4?'lo':'mid'));
+    const bnName=bn==='hi'?'偏强':(bn==='lo'?'偏弱':'适中');
+    const txtL=wrapTextL(meas,BAND_TEXT[d.key][bn],BW-48-14);
+    const bh=110+(txtL.length-1)*28;
+    return {d,pct:Math.round(my[i]/5*100),bn,bnName,txtL,bh};
+  });
+  setF(meas,21);
+  const depth=[
+    {t:'你 的 高 光',x:c.highlight},
+    {t:'你 的 软 肋',x:c.weakness},
+    {t:'给 你 的 话',x:c.advice},
+    {t:'园里最懂你的人',x:c.soulmate}
+  ].map(b=>({t:b.t,x:b.x,lines:wrapTextL(meas,b.x,BW-48),bh:94+(wrapTextL(meas,b.x,BW-48).length-1)*36}));
+
+  setF(meas,22);
+  const kws=c.keywords;
+  const kwW=kws.map(k=>meas.measureText(k).width+44);
+
+  // ---- 总高预算：与绘制增量一一对应 ----
+  let H=118;
+  H+=64;                     // 主标题
+  H+=34;                     // 副标题+分隔线
+  H+=54;                     // 判词小标
+  H+=86;                     // 角色名
+  H+=64;                     // 称号
+  H+=quoteL.length*36+30;    // 判词引言+间距
+  H+=88;                     // 关键词 chips→五维标题
+  H+=370;                    // 雷达+图例
+  H+=54;                     // 五维卡起点
+  dimBlocks.forEach(b=>{H+=b.bh+14;});
+  H+=36+52;                  // 深度解读标题
+  depth.forEach(b=>{H+=b.bh+16;});
+  H+=30+42+34+44;            // 页脚
+  H+=56;                     // 底部留白
+
+  const S=2;
+  const cv=document.createElement('canvas');
+  cv.width=W*S;cv.height=Math.round(H*S);
+  const ctx=cv.getContext('2d');
+  ctx.scale(S,S);
+
+  // ---- 背景 ----
+  ctx.fillStyle='#f6efdf';ctx.fillRect(0,0,W,H);
+  const grd=ctx.createRadialGradient(W*0.2,H*0.05,0,W*0.2,H*0.05,W*0.6);
+  grd.addColorStop(0,'rgba(180,139,60,.10)');grd.addColorStop(1,'rgba(180,139,60,0)');
+  ctx.fillStyle=grd;ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='#b48b3c';ctx.lineWidth=2;
+  ctx.strokeRect(18,18,W-36,H-36);
+  ctx.strokeStyle='rgba(157,44,44,.55)';ctx.lineWidth=1;
+  ctx.strokeRect(26,26,W-52,H-52);
+
+  let y=118;const cx=W/2;
+  ctx.textAlign='center';
+  // ---- 头部 ----
+  ctx.fillStyle='#9d2c2c';setF(ctx,46,1);
+  ctx.fillText(DATA.meta.title,cx,y);y+=64;
+  ctx.fillStyle='#8b7c68';setF(ctx,22);
+  ctx.fillText(DATA.meta.subtitle,cx,y);y+=34;
+  ctx.strokeStyle='rgba(180,139,60,.7)';
+  ctx.beginPath();ctx.moveTo(cx-120,y);ctx.lineTo(cx+120,y);ctx.stroke();
+
+  // ---- 判词区 ----
+  y+=54;
+  ctx.fillStyle='#b48b3c';setF(ctx,24);
+  ctx.fillText('— 园门开启 · 你的判词落定 —',cx,y);y+=86;
+  ctx.fillStyle='#3b2f2f';setF(ctx,78,1);
+  ctx.fillText(c.name,cx,y);y+=64;
+  ctx.fillStyle='#b48b3c';setF(ctx,30);
+  ctx.fillText('『'+c.title+'』',cx,y);y+=58;
+  ctx.fillStyle='#3b2f2f';setF(ctx,24);
+  quoteL.forEach(l=>{ctx.fillText(l,cx,y);y+=36;});
+  y+=30;
+  // 关键词 chips
+  let kwTotal=kwW.reduce((a,b)=>a+b,0)+(kws.length-1)*14;
+  let kx=cx-kwTotal/2;
+  kws.forEach((k,i)=>{
+    ctx.fillStyle='#9d2c2c';
+    rr(ctx,kx,y-30,kwW[i],44,22);ctx.fill();
+    ctx.fillStyle='#f6efdf';setF(ctx,22);
+    ctx.fillText(k,kx+kwW[i]/2,y+1);
+    kx+=kwW[i]+14;
+  });
+
+  // ---- 五维雷达 ----
+  y+=88;
+  ctx.fillStyle='#9d2c2c';setF(ctx,30,1);
+  ctx.fillText('五 维 人 格 画 像',cx,y);
+  const rcy=y+34+150;
+  radarCard(ctx,cx,rcy,118,dims.map(d=>d.label),my,c.vector);
+  y=rcy+152+34;
+  setF(ctx,20);
+  ctx.fillStyle='#9d2c2c';ctx.fillRect(cx-150,y-8,12,12);
+  ctx.fillStyle='#8b7c68';ctx.textAlign='left';ctx.fillText('你的画像',cx-132,y+4);
+  ctx.fillStyle='#b48b3c';ctx.fillRect(cx-38,y-8,12,12);
+  ctx.fillStyle='#8b7c68';ctx.fillText('你最像的角色',cx-20,y+4);
+  ctx.textAlign='center';
+
+  // ---- 五维解读卡 ----
+  y+=54;
+  dimBlocks.forEach(b=>{
+    ctx.fillStyle='#fffdf6';
+    rr(ctx,PAD,y,BW,b.bh,12);ctx.fill();
+    ctx.strokeStyle='#dccfae';ctx.lineWidth=1;ctx.stroke();
+    setF(ctx,24,1);
+    ctx.fillStyle='#3b2f2f';
+    ctx.textAlign='left';ctx.fillText(b.d.label,PAD+24,y+34);
+    setF(meas,24,1);
+    const tagX=PAD+24+meas.measureText(b.d.label).width+16;
+    ctx.fillStyle=b.bn==='hi'?'#9d2c2c':(b.bn==='lo'?'#6f5f52':'#b48b3c');
+    rr(ctx,tagX,y+14,58,30,15);ctx.fill();
+    ctx.fillStyle='#fffdf6';setF(ctx,18);
+    ctx.textAlign='center';ctx.fillText(b.bnName,tagX+29,y+35);
+    ctx.textAlign='left';
+    ctx.fillStyle='#efe5cc';
+    rr(ctx,PAD+24,y+50,BW-48,10,5);ctx.fill();
+    ctx.fillStyle='#9d2c2c';
+    rr(ctx,PAD+24,y+50,(BW-48)*b.pct/100,10,5);ctx.fill();
+    ctx.fillStyle='#6f5f52';setF(ctx,20);
+    let ty=y+86;
+    b.txtL.forEach(l=>{ctx.fillText(l,PAD+24,ty);ty+=28;});
+    y+=b.bh+14;
+    ctx.textAlign='center';
+  });
+
+  // ---- 深度解读 ----
+  y+=36;
+  ctx.fillStyle='#9d2c2c';setF(ctx,30,1);
+  ctx.fillText('深 度 解 读',cx,y);y+=52;
+  depth.forEach(b=>{
+    ctx.fillStyle='#fffdf6';
+    rr(ctx,PAD,y,BW,b.bh,12);ctx.fill();
+    ctx.strokeStyle='#dccfae';ctx.stroke();
+    ctx.fillStyle='#9d2c2c';setF(ctx,24,1);
+    ctx.textAlign='left';ctx.fillText(b.t,PAD+24,y+34);
+    ctx.fillStyle='#3b2f2f';setF(ctx,21);
+    let ty=y+70;
+    b.lines.forEach(l=>{ctx.fillText(l,PAD+24,ty);ty+=36;});
+    y+=b.bh+16;ctx.textAlign='center';
+  });
+
+  // ---- 页脚 ----
+  y+=30;
+  ctx.strokeStyle='rgba(180,139,60,.6)';
+  ctx.beginPath();ctx.moveTo(cx-110,y);ctx.lineTo(cx+110,y);ctx.stroke();y+=42;
+  ctx.fillStyle='#8b7c68';setF(ctx,19);
+  ctx.fillText('题面框架源自公有领域 Rosenberg 自尊量表 · 文案原创',cx,y);y+=34;
+  ctx.fillText('娱乐向，非心理诊断',cx,y);y+=44;
+  ctx.fillStyle='#9d2c2c';setF(ctx,24,1);
+  ctx.fillText((DATA.meta.share_brand||'')+new Date().toLocaleDateString('zh-CN'),cx,y);
+
+  // ---- 展示浮层 ----
+  const url=cv.toDataURL('image/jpeg',0.92);
+  let mask=document.getElementById('export-mask');
+  if(!mask){
+    mask=document.createElement('div');
+    mask.id='export-mask';mask.className='export-mask';
+    mask.innerHTML='<img id="export-img"><div class="export-hint"><b>长按图片</b>保存到相册，即可转发朋友圈 / 小红书<br>（电脑端点下方按钮下载）</div><div class="export-btns"><button id="export-dl">下载图片</button><button class="ghost" id="export-close">关 闭</button></div>';
+    document.body.appendChild(mask);
+    document.getElementById('export-close').onclick=()=>mask.remove();
+    document.getElementById('export-dl').onclick=()=>{
+      const a=document.createElement('a');
+      a.href=document.getElementById('export-img').src;
+      a.download='金陵十二钗测试结果_'+new Date().toLocaleDateString('zh-CN').replace(/\//g,'')+'.png';
+      a.click();
+    };
+    mask.addEventListener('click',e=>{if(e.target===mask)mask.remove();});
+  }
+  document.getElementById('export-img').src=url;
+  mask.style.display='flex';
+}
+</script>
+</body>
+</html>
